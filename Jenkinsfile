@@ -9,7 +9,7 @@ pipeline {
    environment {
        DOCKER_CONFIG = "/temp/.docker"
        REPO_URI = "975050033181.dkr.ecr.ap-northeast-1.amazonaws.com/johan-movie-service"
-       REPO_REGISTRY_URL = "975050033181.dkr.ecr.ap-northeast-1.amazonaws.com"
+       REPO_REGISTRY_URL = "https://975050033181.dkr.ecr.ap-northeast-1.amazonaws.com"
        ECR_REGISTRY_CREDENTIAL = 'ecr:ap-northeast-1:aws-credentials'
        REGION = 'ap-northeast-1'
        CLUSTER_NAME = 'movie-cluster'
