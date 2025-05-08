@@ -7,15 +7,13 @@ pipeline {
     }
 
     environment {
-        DOCKER_CONFIG = "/temp/.docker"
         REPO_URI = "975050033181.dkr.ecr.ap-northeast-1.amazonaws.com/johan-movie-service"
         REPO_REGISTRY_URL = "https://975050033181.dkr.ecr.ap-northeast-1.amazonaws.com"
         ECR_REGISTRY_CREDENTIAL = 'ecr:ap-northeast-1:aws-credentials'
         REGION = 'ap-northeast-1'
-        CLUSTER_NAME = 'movie-cluster'
-        SERVICE_NAME = 'movie-service'
-        TASK_DEFINITION_FAMILY = 'movie-task-def'
-        CONTAINER_NAME = 'movie-container'
+        CLUSTER_NAME = 'johan-prod'
+        SERVICE_NAME = 'johan-movie-service'
+        CONTAINER_NAME = 'johan-movie-service'
     }
 
     stages {
@@ -47,5 +45,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploying Image to ECS') {
+            steps {
+                script {
+                    sh """
+                        aws ecs update-service \
+                          --cluster ${CLUSTER_NAME} \
+                          --service ${SERVICE_NAME} \
+                          --force-new-deployment \
+                          --region ${REGION}
+                    """
+                }
+            }
+        }
+
+
     }
 }
