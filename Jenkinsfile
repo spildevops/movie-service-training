@@ -14,11 +14,13 @@ pipeline {
         CLUSTER_NAME = 'johan-prod'
         SERVICE_NAME = 'johan-movie-service'
         CONTAINER_NAME = 'johan-movie-service'
+        SLACK_CHANNEL = 'learn-jenkins'
     }
 
     stages {
         stage('Build and Test') {
             steps {
+                slackSend(channel: "${SLACK_CHANNEL}", message: "📦 Starting build for *${env.JOB_NAME}* #${env.BUILD_NUMBER}")
                 sh './mvnw clean package -DskipTests'
             }
         }
@@ -31,6 +33,7 @@ pipeline {
                         docker build --platform=linux/amd64 -t ${REPO_URI}:${env.DATE_TAG} .
                         docker tag ${REPO_URI}:${env.DATE_TAG} ${REPO_URI}:latest
                     """
+                    slackSend(channel: "${SLACK_CHANNEL}", message: "🐳 Docker image built with tag `${env.DATE_TAG}`")
                 }
             }
         }
@@ -42,6 +45,7 @@ pipeline {
                         sh "docker push ${REPO_URI}:${env.DATE_TAG}"
                         sh "docker push ${REPO_URI}:latest"
                     }
+                    slackSend(channel: "${SLACK_CHANNEL}", message: "📤 Pushed Docker image `${env.DATE_TAG}` and `latest` to ECR")
                 }
             }
         }
@@ -57,9 +61,17 @@ pipeline {
                           --region ${REGION}
                     """
                 }
+                slackSend(channel: "${SLACK_CHANNEL}", message: "🚀 Deployed to ECS service *${SERVICE_NAME}*")
             }
         }
+    }
 
-
+    post {
+        always {
+            slackSend(
+                channel: "${SLACK_CHANNEL}",
+                message: ":information_source: Build *${env.JOB_NAME}* #${env.BUILD_NUMBER} finished with status: *${currentBuild.currentResult}*.\nURL: ${env.BUILD_URL}",
+            )
+        }
     }
 }
