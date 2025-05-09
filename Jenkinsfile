@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh """
                     docker build -t ${REPO_URI}:latest .
-                    docker tag ${REPO_URI}:latest
+                    docker tag ${REPO_URI}:latest ${REPO_URI}:latest
                 """
             }
         }
