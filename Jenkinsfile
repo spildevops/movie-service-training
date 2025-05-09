@@ -21,10 +21,13 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh """
-                    docker build -t ${REPO_URI}:latest .
-                    docker tag ${REPO_URI}:latest ${REPO_URI}:latest
-                """
+                script {
+                    env.DATE_TAG = sh(script: "date +%Y-%m-%d".returnStdout: true).trim()
+                    sh """
+                        docker build -t ${REPO_URI}:${env.DATE_TAG} .
+                        docker tag ${REPO_URI}:${env.DATE_TAG} ${REPO_URI}:latest
+                    """
+                }
             }
         }
 
@@ -36,6 +39,7 @@ pipeline {
                 script {
                     docker.withRegistry("${REPO_REGISTRY_URL}", "${ECR_REGISTRY_CREDENTIALS}") {
                         sh """
+                            docker push ${REPO_URI}:{env.DATE_TAG}
                             docker push ${REPO_URI}:latest
                         """
                     }
