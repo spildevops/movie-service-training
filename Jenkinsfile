@@ -10,6 +10,9 @@ pipeline {
         REPO_URI = "975050033181.dkr.ecr.ap-northeast-1.amazonaws.com/ronald-movie-service-ecr"
         REPO_REGISTRY_URL = "https://975050033181.dkr.ecr.ap-northeast-1.amazonaws.com"
         REGION = "ap-northeast-1"
+        CLUSTER_NAME = "johan-prod"
+        SERVICE_NAME = "johan-movie-service"
+        CONTAINER_NAME = "johan-movie-service"
     }
 
     stages {
@@ -45,7 +48,21 @@ pipeline {
                 }
             }
         }
-    }
+
+        stage('Deploying Image to ECS') {
+            steps {
+                script{
+                    sh """
+                        aws ecs update-service \
+                        --cluster ${CLUSTER_NAME} \
+                        --service ${SERVICE_NAME} \
+                        --force-new-deployment \
+                        --region ${REGION}
+                    """
+                }
+            }
+        }
+    }    
 
     post{
         always{
