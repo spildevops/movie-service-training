@@ -1,11 +1,15 @@
 pipeline {
     agent any
+
+    tools {
+        maven 'Maven 3.9.5'
+        jdk 'JDK 17'
+    }
        
     stages {
         stage('Test') {
             steps {
-                echo "Hello"
-                echo "Hello again..."
+                sh './mvnw clean package'
             }
         }
     }
